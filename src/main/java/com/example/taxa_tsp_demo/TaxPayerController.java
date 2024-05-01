@@ -1,16 +1,23 @@
 package com.example.taxa_tsp_demo;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class TaxPayerController {
     @Autowired
     TaxPayingService taxPayingService;
     @PostMapping ("/taxpayer")
-    public TaxPayerDTO addTaxPayer(@ModelAttribute TaxPayerDTO taxPayerDTO){
+    public TaxPayerDTO addTaxPayer(@ModelAttribute String taxPayerDTOS) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+       TaxPayerDTO taxPayerDTO = mapper.readValue(taxPayerDTOS, TaxPayerDTO.class);
         taxPayingService.addTaxpayer(taxPayerDTO);
         return taxPayerDTO;
     }
@@ -43,6 +50,7 @@ public class TaxPayerController {
         taxPayingService.updateTaxBill(taxBillDTO);
         return taxBillDTO;
     }
+
 
 
 

@@ -1,33 +1,37 @@
 package com.example.taxa_tsp_demo;
 
+import jakarta.annotation.Generated;
+import org.mapstruct.MapperConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
-public class TaxPayingIMPL implements TaxPayingService, TaxPayerMapper {
-    TaxPayerMapper taxPayerMapper;
+public class TaxPayingIMPL implements TaxPayingService{
+
+     TaxPayingMapper taxPayingMapper;
     @Autowired
     TaxPayerRepo tpRepo;
     @Autowired
     TaxBilRepo tbRepo;
     @Autowired
     TptRepo tptRepo;
-    public void addTaxpayer(TaxPayerDTO taxPayerDTO) {
-        TaxPayer taxPayer = new TaxPayer.TaxPayerBuilder().taxBills(taxPayerDTO.getTaxBills()).name(taxPayerDTO
-                .getName()).taxpayingCode(taxPayerDTO.getTaxpayingCode()).build();
+    TaxPayerDTO taxPayerDTO;
+    public synchronized void addTaxpayer(TaxPayerDTO taxPayerDTO) {
+
+        TaxPayer taxPayer = taxPayingMapper.taxPayerDTOtoTaxpayer(taxPayerDTO);
         tpRepo.save(taxPayer);
     }
+
     @Override
-    public void addTaxBill(TaxBillDTO taxBillDTO) {
-        TaxBill taxBill = new TaxBill.TaxBillBuilder().taxPayingTransactions(taxBillDTO.getTaxPayingTransactions())
-                .tbCode(taxBillDTO.getTbCode()).taxPayer(taxBillDTO.getTaxPayer()).build();
+    public synchronized void addTaxBill(TaxBillDTO taxBillDTO) {
+        TaxBill taxBill =taxPayingMapper.taxBillDTOtoTaxBill(taxBillDTO);
         tbRepo.save(taxBill);
     }
     @Override
-    public void addTPTransaction(TaxPayingTransactionDTO tptDTO) {
+    public synchronized void addTPTransaction(TaxPayingTransactionDTO tptDTO) {
         TaxPayingTransaction tpTransaction = new TaxPayingTransaction.TaxPayingTransactionBuilder().transactionID(tptDTO.getTransactionID())
                 .amount(tptDTO.getAmount()).taxBill(tptDTO.getTaxBill()).build();
         tptRepo.save(tpTransaction);
@@ -56,8 +60,9 @@ public class TaxPayingIMPL implements TaxPayingService, TaxPayerMapper {
       tbRepo.save(taxBill);
     }
 
-    @Override
-    public TaxPayer taxPayerDTOtoTaxpayer(TaxPayerDTO dto) {
-        return taxPayerMapper.taxPayerDTOtoTaxpayer(dto);
-    }
+
+
+
+
+
 }
